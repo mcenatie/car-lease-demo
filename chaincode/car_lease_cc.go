@@ -92,6 +92,8 @@ func (t *SimpleChaincode) Run(stub *shim.ChaincodeStub, function string, args []
 		return t.init_v5c(stub, args)
 	} else if function == "set_owner" {										//change owner of a marble
 		return t.set_owner(stub, args)
+	} else if function == "update_v5c" {										//change owner of a marble
+		return t.update_v5c(stub, args)
 	}
 	fmt.Println("run did not find func: " + function)						//error
 
