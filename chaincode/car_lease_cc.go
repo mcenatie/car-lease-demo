@@ -120,7 +120,6 @@ func (t *SimpleChaincode) Delete(stub *shim.ChaincodeStub, args []string) ([]byt
 		return nil, errors.New("Failed to get v5c index")
 	}
 	var v5cIndex []string
-	fmt.Println(v5csAsBytes)
 	json.Unmarshal(v5csAsBytes, &v5cIndex)								//un stringify it aka JSON.parse()
 	
 	//remove v5c from index
