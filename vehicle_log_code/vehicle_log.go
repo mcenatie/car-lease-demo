@@ -196,7 +196,7 @@ func (t *Chaincode) get_vehicle_logs(stub *shim.ChaincodeStub, args []string) ([
 																	
 	var role int64
 
-	if strings.Compare(args[0], "user_type1_88a37f935f") == 0 {
+	if strings.Compare(args[0], "user_type1_7ce94ae1c2") == 0 {
 		role = ROLE_AUTHORITY
 	} else {
 		uRole, err := t.check_role(stub,[]string{string(ecert)})
