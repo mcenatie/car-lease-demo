@@ -20,8 +20,8 @@ import (
 const   ROLE_AUTHORITY      =  0
 const   ROLE_MANUFACTURER   =  1
 const   ROLE_PRIVATE_ENTITY =  2
-const   ROLE_LEASE_COMPANY  =  3
-const   ROLE_SCRAP_MERCHANT =  4
+const   ROLE_LEASE_COMPANY  =  4
+const   ROLE_SCRAP_MERCHANT =  8
 
 const   STATE_TEMPLATE  	=  0
 const   STATE_MANUFACTURE  	=  1
