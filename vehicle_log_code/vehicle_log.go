@@ -51,8 +51,6 @@ const   ROLE_PRIVATE_ENTITY =  2
 const   ROLE_LEASE_COMPANY  =  4
 const   ROLE_SCRAP_MERCHANT =  8
 
-var host string
-var port string
 
 //==============================================================================================================================
 //	Init Function - Called when the user deploys the chaincode sets up base vehicle_logs (blank array)																
@@ -60,13 +58,6 @@ var port string
 func (t *Chaincode) init(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 
 	var eh Vehicle_Log_Holder
-
-	if len(args) != 2 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 2")
-	}
-
-	host = args[0]
-	port = args[1]
 	
 	bytes, err := json.Marshal(eh)
 	
@@ -89,7 +80,7 @@ func (t *Chaincode) get_ecert(stub *shim.ChaincodeStub, name string) ([]byte, er
 	
 	var cert ECertResponse
 	
-	response, err := http.Get("http://"+host+":"+port+"/registrar/"+name+"/ecert") // Calls out to the HyperLedger REST API to get the ecert of the user with that name
+	response, err := http.Get("http://169.44.38.122:33705/registrar/"+name+"/ecert") // Calls out to the HyperLedger REST API to get the ecert of the user with that name
     
 															if err != nil { return nil, errors.New("Could not get ecert") }
 	

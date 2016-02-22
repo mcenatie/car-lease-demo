@@ -29,10 +29,6 @@ const   STATE_PRIVATE_OWNERSHIP =  2
 const   STATE_LEASED_OUT 	=  3
 const   STATE_BEING_SCRAPPED  	=  4
 
-var host string
-var port string
-var chaincode_name string
-
 //==============================================================================================================================
 //	 Structure Definitions 
 //==============================================================================================================================
@@ -71,14 +67,6 @@ type ECertResponse struct {
 //==============================================================================================================================
 func (t *Chaincode) init(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 	
-	if len(args) != 3 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 3")
-	}
-
-	host = args[0]
-	port = args[1]
-	chaincode_name = args[2]
-
 	return nil, nil
 }
 
@@ -140,8 +128,8 @@ func (t *Chaincode) get_user(stub *shim.ChaincodeStub, encodedCert string) (stri
 func (t *Chaincode) get_ecert(stub *shim.ChaincodeStub, name string) ([]byte, error) {
 	
 	var cert ECertResponse
-	fmt.Println("http://"+host+":"+port+"/registrar/"+name+"/ecert")
-	response, err := http.Get("http://"+host+":"+port+"/registrar/"+name+"/ecert") // Calls out to the HyperLedger REST API to get the ecert of the user with that name
+	fmt.Println("http://169.44.38.122:33705/registrar/"+name+"/ecert")
+	response, err := http.Get("http://169.44.38.122:33705/registrar/"+name+"/ecert") // Calls out to the HyperLedger REST API to get the ecert of the user with that name
     
 															if err != nil { return nil, errors.New("Could not get ecert") }
 	
