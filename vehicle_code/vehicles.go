@@ -29,6 +29,10 @@ const   STATE_PRIVATE_OWNERSHIP =  2
 const   STATE_LEASED_OUT 	=  3
 const   STATE_BEING_SCRAPPED  	=  4
 
+var host string
+var port string
+var chaincode_name string
+
 //==============================================================================================================================
 //	 Structure Definitions 
 //==============================================================================================================================
@@ -66,6 +70,15 @@ type ECertResponse struct {
 //	Init Function - Called when the user deploys the chaincode																	
 //==============================================================================================================================
 func (t *Chaincode) init(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+	
+	if len(args) != 3 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 3")
+	}
+
+	host = args[0]
+	port = args[1]
+	chaincode_name = args[2]
+
 	return nil, nil
 }
 
@@ -128,7 +141,7 @@ func (t *Chaincode) get_ecert(stub *shim.ChaincodeStub, name string) ([]byte, er
 	
 	var cert ECertResponse
 	
-	response, err := http.Get("http://169.44.63.218:34279/registrar/"+name+"/ecert") // Calls out to the HyperLedger REST API to get the ecert of the user with that name
+	response, err := http.Get("http://" + host + ":" + port + "/registrar/"+name+"/ecert") // Calls out to the HyperLedger REST API to get the ecert of the user with that name
     
 															if err != nil { return nil, errors.New("Could not get ecert") }
 	
@@ -151,7 +164,7 @@ func (t *Chaincode) get_ecert(stub *shim.ChaincodeStub, name string) ([]byte, er
 //==============================================================================================================================
 func (t *Chaincode) create_log(stub *shim.ChaincodeStub, args []string) ([]byte, error) {	
 																						
-	chaincode_name := "6e266ca5c0a1384b8ae722dd1d94a726d269fcccfcfb18cf4d3e1984f20805aeff2eaffa111b835ebe468d1cd9e9785c3bef08418921efbdc51bbe1b3837a129"
+	//chaincode_name := "6e266ca5c0a1384b8ae722dd1d94a726d269fcccfcfb18cf4d3e1984f20805aeff2eaffa111b835ebe468d1cd9e9785c3bef08418921efbdc51bbe1b3837a129"
 	chaincode_function := "create_log"																																									
 	chaincode_arguments := args
 	
@@ -199,8 +212,7 @@ func (t *Chaincode) get_user_data(stub *shim.ChaincodeStub, name string) ([]byte
 
 	ecert, err := t.get_ecert(stub, name)	;					if err != nil { return nil, -1, errors.New("Could not find ecert for user: "+name) }
 
-	if(strings.Compare(name, "user_type1_18732fb8ec") == 0)
-	{
+	if strings.Compare(name, "user_type1_18732fb8ec") == 0 {
 		return ecert, ROLE_AUTHORITY, nil
 	}
 

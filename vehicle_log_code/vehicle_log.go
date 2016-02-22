@@ -51,12 +51,22 @@ const   ROLE_PRIVATE_ENTITY =  2
 const   ROLE_LEASE_COMPANY  =  4
 const   ROLE_SCRAP_MERCHANT =  8
 
+var host string
+var port string
+
 //==============================================================================================================================
 //	Init Function - Called when the user deploys the chaincode sets up base logs (blank array)																
 //==============================================================================================================================
-func (t *Chaincode) init(stub *shim.ChaincodeStub) ([]byte, error) {
+func (t *Chaincode) init(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 
 	var eh LogsHolder
+
+	if len(args) != 2 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 2")
+	}
+
+	host = args[0]
+	port = args[1]
 	
 	bytes, err := json.Marshal(eh)
 	
@@ -79,7 +89,7 @@ func (t *Chaincode) get_ecert(stub *shim.ChaincodeStub, name string) ([]byte, er
 	
 	var cert ECertResponse
 	
-	response, err := http.Get("http://169.44.63.218:34279/registrar/"+name+"/ecert") // Calls out to the HyperLedger REST API to get the ecert of the user with that name
+	response, err := http.Get("http://" + host + ":" + port + "/registrar/"+name+"/ecert") // Calls out to the HyperLedger REST API to get the ecert of the user with that name
     
 															if err != nil { return nil, errors.New("Could not get ecert") }
 	
@@ -184,16 +194,15 @@ func (t *Chaincode) get_logs(stub *shim.ChaincodeStub, args []string) ([]byte, e
 	
 																			if err != nil {	return nil, err }
 																	
-	var role = -1
+	var role int64
 
-	if(strings.Compare(args[0], "user_type1_18732fb8ec") == 0)
-	{
+	if strings.Compare(args[0], "user_type1_18732fb8ec") == 0 {
 		role = ROLE_AUTHORITY
-	}
-	else {
-		role, err := t.check_role(stub,[]string{string(ecert)})
+	} else {
+		uRole, err := t.check_role(stub,[]string{string(ecert)})
 	
 																			if err != nil { return nil, err }
+		role = uRole
 	}
 
 																	
@@ -266,7 +275,7 @@ func (t *Chaincode) get_users_logs(stub *shim.ChaincodeStub, eh LogsHolder, name
 func (t *Chaincode) Run(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
 
 	// Handle different functions
-	if function == "init" { return t.init(stub) 
+	if function == "init" { return t.init(stub, args) 
 	} else if function == "create_log" {
 		if(len(args) < 4) {
 			return nil, errors.New("Invalid number of arguments supplied")
