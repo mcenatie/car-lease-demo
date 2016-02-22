@@ -151,7 +151,7 @@ func (t *Chaincode) get_ecert(stub *shim.ChaincodeStub, name string) ([]byte, er
 //==============================================================================================================================
 func (t *Chaincode) create_log(stub *shim.ChaincodeStub, args []string) ([]byte, error) {	
 																						
-	chaincode_name := "4e359133069c0b96f98ca6d2acee0149acacfd66cf4dfff1500b7aa4197caa756db3e2daa57000c199650883bb12e31813849677ce13903c9b27307b0f1da7be"
+	chaincode_name := "064594ee1854df4e62bb1247015640935211f9fae8480e332c66d3629bf64e3f021dc14c85cfab7e2eb7c008768ffa31c12ffe7c74423e28815652040b057cca"
 	chaincode_function := "create_vehicle_log"																																									
 	chaincode_arguments := args
 	
