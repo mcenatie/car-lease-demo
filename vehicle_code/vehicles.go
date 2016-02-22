@@ -213,7 +213,7 @@ func (t *Chaincode) get_user_data(stub *shim.ChaincodeStub, name string) ([]byte
 
 	ecert, err := t.get_ecert(stub, name)	;					if err != nil { return nil, -1, errors.New("Could not find ecert for user: "+name) }
 
-	if strings.Compare(name, "user_type1_18732fb8ec") == 0 {
+	if strings.Compare(name, "user_type1_88a37f935f") == 0 {
 		return ecert, ROLE_AUTHORITY, nil
 	}
 
