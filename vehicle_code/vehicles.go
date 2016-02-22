@@ -140,17 +140,18 @@ func (t *Chaincode) get_user(stub *shim.ChaincodeStub, encodedCert string) (stri
 func (t *Chaincode) get_ecert(stub *shim.ChaincodeStub, name string) ([]byte, error) {
 	
 	var cert ECertResponse
-	
-	response, err := http.Get("http://" + host + ":" + port + "/registrar/"+name+"/ecert") // Calls out to the HyperLedger REST API to get the ecert of the user with that name
+	fmt.Println("http://"+host+":"+port+"/registrar/"+name+"/ecert")
+	response, err := http.Get("http://"+host+":"+port+"/registrar/"+name+"/ecert") // Calls out to the HyperLedger REST API to get the ecert of the user with that name
     
 															if err != nil { return nil, errors.New("Could not get ecert") }
 	
 	defer response.Body.Close()
 	contents, err := ioutil.ReadAll(response.Body)			// Read the response from the http callout into the variable contents
-	
+	fmt.Println("Read body")
 															if err != nil { return nil, errors.New("Could not read body") }
 	
 	err = json.Unmarshal(contents, &cert)
+	fmt.Println("Unmarshall certificate")
 	
 															if err != nil { return nil, errors.New("ECert not found for user: "+name) }
 															
