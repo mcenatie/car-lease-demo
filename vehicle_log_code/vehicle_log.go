@@ -26,7 +26,7 @@ import (
 type  Chaincode struct {
 }
 
-type Log struct {
+type Vehicle_Log struct {
 	Name            string `json:"name"`
 	Time			string `json:"time"`
 	Text			string `json:"text"`
@@ -34,8 +34,8 @@ type Log struct {
 	Users			[]string `json:"users"`
 }
 
-type LogsHolder struct {
-	Logs 			[]Log `json:"logs"`
+type Vehicle_Log_Holder struct {
+	Vehicle_Logs 	[]Vehicle_Log `json:"vehicle_logs"`
 }
 
 //==============================================================================================================================
@@ -55,11 +55,11 @@ var host string
 var port string
 
 //==============================================================================================================================
-//	Init Function - Called when the user deploys the chaincode sets up base logs (blank array)																
+//	Init Function - Called when the user deploys the chaincode sets up base vehicle_logs (blank array)																
 //==============================================================================================================================
 func (t *Chaincode) init(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 
-	var eh LogsHolder
+	var eh Vehicle_Log_Holder
 
 	if len(args) != 2 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 2")
@@ -70,11 +70,11 @@ func (t *Chaincode) init(stub *shim.ChaincodeStub, args []string) ([]byte, error
 	
 	bytes, err := json.Marshal(eh)
 	
-															if err != nil { return nil, errors.New("Error creating log record") }
+															if err != nil { return nil, errors.New("Error creating vehicle_log record") }
 																
-	err = stub.PutState("Vehicle_Log", bytes)
+	err = stub.PutState("Vehicle_Logs", bytes)
 	
-															if err != nil { return nil, errors.New("Error creating blank logs array") }
+															if err != nil { return nil, errors.New("Error creating blank vehicle_log array") }
 
 	return nil, nil
 }
@@ -136,38 +136,38 @@ func (t *Chaincode) check_role(stub *shim.ChaincodeStub, args []string) (int64, 
 }
 
 //==============================================================================================================================
-//	Log Functions Functions
+//	Log Functions
 //==============================================================================================================================
-//	Create Log - Creates a new log object using the data passed and the current time then appends it to the logs array
-//				   before saving the state to the ledger
+//	Create Log - Creates a new vehicle_log object using the data passed and the current time then appends it to the vehicle_logs array
+//				 before saving the state to the ledger
 //==============================================================================================================================
-func (t *Chaincode) create_log(stub *shim.ChaincodeStub, log_name string, log_text string, log_obj_id string, log_users []string) ([]byte, error) {
+func (t *Chaincode) create_vehicle_log(stub *shim.ChaincodeStub, vehicle_log_name string, vehicle_log_text string, vehicle_log_obj_id string, vehicle_log_users []string) ([]byte, error) {
 
-	var e Log
+	var e Vehicle_Log
 	
-	e.Name 	 = log_name
+	e.Name 	 = vehicle_log_name
 	e.Time	 = time.Now().Format("02/01/2006 15:04")
-	e.Text	 = log_text
-	e.Obj_ID = log_obj_id
-	e.Users	 = log_users
+	e.Text	 = vehicle_log_text
+	e.Obj_ID = vehicle_log_obj_id
+	e.Users	 = vehicle_log_users
 
-	bytes, err := stub.GetState("Vehicle_Log")
+	bytes, err := stub.GetState("Vehicle_Logs")
 		
-															if err != nil { return nil, errors.New("Unable to get logs") }
+															if err != nil { return nil, errors.New("Unable to get vehicle logs") }
 	
-	var eh LogsHolder
+	var eh Vehicle_Log_Holder
 	
 	err = json.Unmarshal(bytes, &eh)						
 	
-															if err != nil {	return nil, errors.New("Corrupt log record") }
+															if err != nil {	return nil, errors.New("Corrupt vehicle logs record") }
 															
-	eh.Logs = append(eh.Logs, e)
+	eh.Vehicle_Logs = append(eh.Vehicle_Logs, e)
 	
 	bytes, err = json.Marshal(eh)
 	
-															if err != nil { fmt.Print("Error creating log record") }
+															if err != nil { fmt.Print("Error creating vehicle log record") }
 
-	err = stub.PutState("Vehicle_Log", bytes)
+	err = stub.PutState("Vehicle_Logs", bytes)
 
 															if err != nil { return nil, errors.New("Unable to put the state") }
 
@@ -175,20 +175,20 @@ func (t *Chaincode) create_log(stub *shim.ChaincodeStub, log_name string, log_te
 }
 
 //==============================================================================================================================
-//	get_logs - Takes a users name and returns the logs they are entitled to. If they are the regulator they see all logs
-//				 otherwise it calls a function to get the users logs
+//	get_vehicle_logs - Takes a users name and returns the vehicle logs they are entitled to. If they are the regulator they see
+//				       all vehicle logs otherwise it calls a function to get the users vehicle logs
 //==============================================================================================================================
-func (t *Chaincode) get_logs(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+func (t *Chaincode) get_vehicle_logs(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 
-	bytes, err := stub.GetState("Vehicle_Log")
+	bytes, err := stub.GetState("Vehicle_Logs")
 		
-																			if err != nil { return nil, errors.New("Unable to get logs") }
+																			if err != nil { return nil, errors.New("Unable to get vehicle logs") }
 																	
-	var eh LogsHolder
+	var eh Vehicle_Log_Holder
 	
 	err = json.Unmarshal(bytes, &eh)						
 	
-																			if err != nil {	return nil, errors.New("Corrupt logs record") }
+																			if err != nil {	return nil, errors.New("Corrupt vehicle log") }
 															
 	ecert, err := t.get_ecert(stub, args[0])
 	
@@ -206,7 +206,7 @@ func (t *Chaincode) get_logs(stub *shim.ChaincodeStub, args []string) ([]byte, e
 	}
 
 																	
-	if role == ROLE_AUTHORITY {												// Return all logs if authority
+	if role == ROLE_AUTHORITY {												// Return all vehicle logs if authority
 			
 			repNull := strings.Replace(string(bytes), "null", "[]", 1)		// If the array is blank it has the json value null so we need to make it an empty array
 	
@@ -214,23 +214,23 @@ func (t *Chaincode) get_logs(stub *shim.ChaincodeStub, args []string) ([]byte, e
 	
 	} else {
 	
-		return t.get_users_logs(stub, eh, args[0])
+		return t.get_users_vehicle_logs(stub, eh, args[0])
 		
 	}
 	
 }
 
 //==============================================================================================================================
-//	get_obj_logs - Takes an logs array and returns all the logs that occured between "from" and "to" in the array to the  
-//				 	Object with ID obj_id
+//	get_obj_vehicle_logs - Takes a vehicle logs array and returns all the vehicle logs that occured between "from" and "to" in  
+//				 	       the array to the Object with ID obj_id
 //==============================================================================================================================
-func (t *Chaincode) get_obj_logs(stub *shim.ChaincodeStub, logs []Log, obj_id string, from int, to int, user string) []Log {
+func (t *Chaincode) get_obj_vehicle_logs(stub *shim.ChaincodeStub, vehicle_logs []Vehicle_Log, obj_id string, from int, to int, user string) []Vehicle_Log {
 	
-	var resp []Log
+	var resp []Vehicle_Log
 	
 	for i := from; i < to; i++ {
-		if logs[i].Obj_ID == obj_id && !contains(logs[i].Users, user) {
-			resp = append(resp, logs[i])
+		if vehicle_logs[i].Obj_ID == obj_id && !contains(vehicle_logs[i].Users, user) {
+			resp = append(resp, vehicle_logs[i])
 		}
 	}
 															
@@ -238,29 +238,29 @@ func (t *Chaincode) get_obj_logs(stub *shim.ChaincodeStub, logs []Log, obj_id st
 }
 
 //==============================================================================================================================
-//	get_users_logs - Takes a users name and loops through all logs to find those with the user as a participant. When it
-//				       finds a log it notes the ID of the object it refers to and then gets all the logs from the last time 
-//					   it found a log for that object to now where the user isn't involved as they have permission to view
-//					   the objects history before they were involved
+//	get_users_vehicle_logs - Takes a users name and loops through all vehicle_logs to find those with the user as a participant.
+//				             When it finds a vehicle log it notes the ID of the object it refers to and then gets all the
+//					         vehicle logs from the last time it found a vehicle log for that object to now where the user isn't
+//					         involved as they have permission to view the objects history before they were involved
 //==============================================================================================================================
-func (t *Chaincode) get_users_logs(stub *shim.ChaincodeStub, eh LogsHolder, name string) ([]byte, error) {
+func (t *Chaincode) get_users_vehicle_logs(stub *shim.ChaincodeStub, eh Vehicle_Log_Holder, name string) ([]byte, error) {
 	
-	users_logs := []Log{}
+	users_vehicle_logs := []Vehicle_Log{}
 	var searched_to map[string]int
 	searched_to = make(map[string]int)
 	
-	for i, log := range eh.Logs {
-		if contains(log.Users, name) {
-			users_logs = append(users_logs, log)
-			users_logs = append(users_logs, t.get_obj_logs(stub, eh.Logs, log.Obj_ID, searched_to[log.Obj_ID], i, name)...) // get the logs of the car before the user had ownership
-			searched_to[log.Obj_ID] = i;
+	for i, vehicle_log := range eh.Vehicle_Logs {
+		if contains(vehicle_log.Users, name) {
+			users_vehicle_logs = append(users_vehicle_logs, vehicle_log)
+			users_vehicle_logs = append(users_vehicle_logs, t.get_obj_vehicle_logs(stub, eh.Vehicle_Logs, vehicle_log.Obj_ID, searched_to[vehicle_log.Obj_ID], i, name)...) // get the vehicle_logs of the car before the user had ownership
+			searched_to[vehicle_log.Obj_ID] = i;
 		} 
 	}
 	
-	var found_logs LogsHolder
-	found_logs.Logs = users_logs
+	var found_vehicle_logs Vehicle_Log_Holder
+	found_vehicle_logs.Vehicle_Logs = users_vehicle_logs
 	
-	bytes, err := json.Marshal(found_logs)
+	bytes, err := json.Marshal(found_vehicle_logs)
 	
 															if err != nil { fmt.Print("Error sending record") }
 	
@@ -276,7 +276,7 @@ func (t *Chaincode) Run(stub *shim.ChaincodeStub, function string, args []string
 
 	// Handle different functions
 	if function == "init" { return t.init(stub, args) 
-	} else if function == "create_log" {
+	} else if function == "create_vehicle_log" {
 		if(len(args) < 4) {
 			return nil, errors.New("Invalid number of arguments supplied")
 		}
@@ -287,7 +287,7 @@ func (t *Chaincode) Run(stub *shim.ChaincodeStub, function string, args []string
 		
 			users_involved = append(users_involved, args[i])
 		}
-		return t.create_log(stub, args[0], args[1], args[2], users_involved) 
+		return t.create_vehicle_log(stub, args[0], args[1], args[2], users_involved) 
 	}
 	
 	return nil, errors.New("Function of that name not found")
@@ -297,7 +297,7 @@ func (t *Chaincode) Run(stub *shim.ChaincodeStub, function string, args []string
 //==============================================================================================================================
 func (t *Chaincode) Query(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
 	
-	if function == "get_logs" { return t.get_logs(stub, args) }
+	if function == "get_vehicle_logs" { return t.get_vehicle_logs(stub, args) }
 	
 	return nil, errors.New("Function of that name not found")
 }
