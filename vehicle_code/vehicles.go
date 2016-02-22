@@ -20,8 +20,8 @@ import (
 const   ROLE_AUTHORITY      =  0
 const   ROLE_MANUFACTURER   =  1
 const   ROLE_PRIVATE_ENTITY =  2
-const   ROLE_LEASE_COMPANY  =  4
-const   ROLE_SCRAP_MERCHANT =  8
+const   ROLE_LEASE_COMPANY  =  3
+const   ROLE_SCRAP_MERCHANT =  4
 
 const   STATE_TEMPLATE  	=  0
 const   STATE_MANUFACTURE  	=  1
@@ -66,7 +66,6 @@ type ECertResponse struct {
 //	Init Function - Called when the user deploys the chaincode																	
 //==============================================================================================================================
 func (t *Chaincode) init(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
-	
 	return nil, nil
 }
 
@@ -128,18 +127,17 @@ func (t *Chaincode) get_user(stub *shim.ChaincodeStub, encodedCert string) (stri
 func (t *Chaincode) get_ecert(stub *shim.ChaincodeStub, name string) ([]byte, error) {
 	
 	var cert ECertResponse
-	fmt.Println("http://169.44.38.122:33705/registrar/"+name+"/ecert")
-	response, err := http.Get("http://169.44.38.122:33705/registrar/"+name+"/ecert") // Calls out to the HyperLedger REST API to get the ecert of the user with that name
+	
+	response, err := http.Get("http://169.44.63.218:34333/registrar/"+name+"/ecert") // Calls out to the HyperLedger REST API to get the ecert of the user with that name
     
 															if err != nil { return nil, errors.New("Could not get ecert") }
 	
 	defer response.Body.Close()
 	contents, err := ioutil.ReadAll(response.Body)			// Read the response from the http callout into the variable contents
-	fmt.Println("Read body")
+	
 															if err != nil { return nil, errors.New("Could not read body") }
 	
 	err = json.Unmarshal(contents, &cert)
-	fmt.Println("Unmarshall certificate")
 	
 															if err != nil { return nil, errors.New("ECert not found for user: "+name) }
 															
@@ -153,8 +151,8 @@ func (t *Chaincode) get_ecert(stub *shim.ChaincodeStub, name string) ([]byte, er
 //==============================================================================================================================
 func (t *Chaincode) create_log(stub *shim.ChaincodeStub, args []string) ([]byte, error) {	
 																						
-	chaincode_name := "064594ee1854df4e62bb1247015640935211f9fae8480e332c66d3629bf64e3f021dc14c85cfab7e2eb7c008768ffa31c12ffe7c74423e28815652040b057cca"
-	chaincode_function := "create_log"																																									
+	chaincode_name := "4e359133069c0b96f98ca6d2acee0149acacfd66cf4dfff1500b7aa4197caa756db3e2daa57000c199650883bb12e31813849677ce13903c9b27307b0f1da7be"
+	chaincode_function := "create_vehicle_log"																																									
 	chaincode_arguments := args
 	
 	_, err := stub.InvokeChaincode(chaincode_name, chaincode_function, chaincode_arguments)
@@ -201,11 +199,12 @@ func (t *Chaincode) get_user_data(stub *shim.ChaincodeStub, name string) ([]byte
 
 	ecert, err := t.get_ecert(stub, name)	;					if err != nil { return nil, -1, errors.New("Could not find ecert for user: "+name) }
 
-	if strings.Compare(name, "user_type1_7ce94ae1c2") == 0 {
+	if strings.Compare(name, "user_type1_7193b538e6") == 0 {
 		return ecert, ROLE_AUTHORITY, nil
 	}
-
+	
 	role, err := t.check_role(stub,[]string{string(ecert)})	;	if err != nil { return nil, -1, err }
+	
 	return ecert, role, nil
 }
 
