@@ -184,9 +184,8 @@ func (t *Chaincode) get_vehicle_logs(stub *shim.ChaincodeStub, args []string) ([
 	ecert, err := t.get_ecert(stub, args[0])
 	
 																			if err != nil {	return nil, err }
-																	
-	var role int64
-
+					
+																
 	role, err := t.check_role(stub,[]string{string(ecert)})
 	
 																			if err != nil { return nil, err }
