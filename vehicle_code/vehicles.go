@@ -20,8 +20,8 @@ import (
 const   ROLE_AUTHORITY      =  0
 const   ROLE_MANUFACTURER   =  1
 const   ROLE_PRIVATE_ENTITY =  2
-const   ROLE_LEASE_COMPANY  =  4
-const   ROLE_SCRAP_MERCHANT =  8
+const   ROLE_LEASE_COMPANY  =  3
+const   ROLE_SCRAP_MERCHANT =  4
 
 const   STATE_TEMPLATE  	=  0
 const   STATE_MANUFACTURE  	=  1
@@ -128,7 +128,7 @@ func (t *Chaincode) get_ecert(stub *shim.ChaincodeStub, name string) ([]byte, er
 	
 	var cert ECertResponse
 	
-	response, err := http.Get("http://169.44.63.218:34333/registrar/"+name+"/ecert") // Calls out to the HyperLedger REST API to get the ecert of the user with that name
+	response, err := http.Get("http://169.44.63.209:38797/registrar/"+name+"/ecert") // Calls out to the HyperLedger REST API to get the ecert of the user with that name
     
 															if err != nil { return nil, errors.New("Could not get ecert") }
 	
@@ -151,7 +151,7 @@ func (t *Chaincode) get_ecert(stub *shim.ChaincodeStub, name string) ([]byte, er
 //==============================================================================================================================
 func (t *Chaincode) create_log(stub *shim.ChaincodeStub, args []string) ([]byte, error) {	
 																						
-	chaincode_name := "064594ee1854df4e62bb1247015640935211f9fae8480e332c66d3629bf64e3f021dc14c85cfab7e2eb7c008768ffa31c12ffe7c74423e28815652040b057cca"
+	chaincode_name := "07c8e79e91d5713883794a7da47ec5b694525ac49dc4fd8233e5be11ad987cdaa71d59539d1f61f24158b33715c3e3d1913613c4c3a1898db8497f1e6f7e6a5e"
 	chaincode_function := "create_vehicle_log"																																									
 	chaincode_arguments := args
 	
@@ -198,10 +198,6 @@ func (t *Chaincode) get_owner(stub *shim.ChaincodeStub, v Vehicle) (string, erro
 func (t *Chaincode) get_user_data(stub *shim.ChaincodeStub, name string) ([]byte, int64, error){
 
 	ecert, err := t.get_ecert(stub, name)	;					if err != nil { return nil, -1, errors.New("Could not find ecert for user: "+name) }
-
-	if strings.Compare(name, "user_type1_7193b538e6") == 0 {
-		return ecert, ROLE_AUTHORITY, nil
-	}
 	
 	role, err := t.check_role(stub,[]string{string(ecert)})	;	if err != nil { return nil, -1, err }
 	
