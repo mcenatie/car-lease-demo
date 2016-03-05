@@ -48,8 +48,8 @@ type ECertResponse struct {
 const   ROLE_AUTHORITY      =  0
 const   ROLE_MANUFACTURER   =  1
 const   ROLE_PRIVATE_ENTITY =  2
-const   ROLE_LEASE_COMPANY  =  4
-const   ROLE_SCRAP_MERCHANT =  8
+const   ROLE_LEASE_COMPANY  =  3
+const   ROLE_SCRAP_MERCHANT =  4
 
 
 //==============================================================================================================================
@@ -80,7 +80,7 @@ func (t *Chaincode) get_ecert(stub *shim.ChaincodeStub, name string) ([]byte, er
 	
 	var cert ECertResponse
 	
-	response, err := http.Get("http://169.44.63.218:34333/registrar/"+name+"/ecert") // Calls out to the HyperLedger REST API to get the ecert of the user with that name
+	response, err := http.Get("http://169.44.63.209:38797/registrar/"+name+"/ecert") // Calls out to the HyperLedger REST API to get the ecert of the user with that name
     
 															if err != nil { return nil, errors.New("Could not get ecert") }
 	
@@ -187,16 +187,10 @@ func (t *Chaincode) get_vehicle_logs(stub *shim.ChaincodeStub, args []string) ([
 																	
 	var role int64
 
-	if strings.Compare(args[0], "user_type1_7193b538e6") == 0 {
-		role = ROLE_AUTHORITY
-	} else {
-		uRole, err := t.check_role(stub,[]string{string(ecert)})
+	role, err := t.check_role(stub,[]string{string(ecert)})
 	
 																			if err != nil { return nil, err }
-		role = uRole
-	}
-
-																	
+														
 	if role == ROLE_AUTHORITY {												// Return all vehicle logs if authority
 			
 			repNull := strings.Replace(string(bytes), "null", "[]", 1)		// If the array is blank it has the json value null so we need to make it an empty array
